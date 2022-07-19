@@ -10,7 +10,7 @@ import numpy as np
 from utils.KalmanFilter1D import KalmanFilter1D
 from utils.KalmanFilter2D import KalmanFilter2D
 from utils.image_utils import *
-from config.default import settings
+from config.video import settings
 
 clear = lambda: os.system("cls")
 warnings.filterwarnings("ignore")
