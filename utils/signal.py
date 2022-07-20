@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def DCFilter(data):
     new_data = []
     for d in data:
