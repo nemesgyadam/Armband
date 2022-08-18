@@ -22,6 +22,12 @@ from utils.visualize import showMe
 from utils.signal import DCFilter
 from config.armband import *
 
+
+'''
+This script records file for previously given classes and saves it as numpy files.
+'''
+
+
 clear = lambda: os.system("cls")
 
 
@@ -68,7 +74,7 @@ def CollectData(
         data = board.get_board_data()
         data = DCFilter(data)
         data = data[
-            :6, -sample_rate * signal_length :
+            :8, -sample_rate * signal_length :
         ]  # keep the data of the eeg channels only, and remove data over the trial length
         results[task].append(data)
         i += 1
