@@ -23,4 +23,30 @@ def showMe(data, range=[-10000, 10000], clear=False):
     c6.plot(data[5])
     c7.plot(data[6])
     c8.plot(data[7])
-    plt.show()
+    plt.show(block = False)
+    #plt.draw()
+
+def showHistory(history):
+    plt.rcParams["figure.figsize"] = [5, 5]
+    for key in history.history.keys():
+
+        if "val_" not in key and "lr" != key:
+            try:
+                plt.clf()
+                plt.plot(history.history[key])
+                plt.plot(history.history["val_" + key])
+                plt.ylabel(key)
+                plt.xlabel("epoch")
+                plt.legend(["train", "validation"], loc="upper left")
+                plt.show()
+            except:
+                ...
+
+
+
+def showAvg(dataset,c, range = [-10000, 10000]):
+    print(f'---{c}---')
+    avg = dataset[c].mean(axis=0)
+    print(f'{avg.min()} - {avg.max()}')
+    print(avg.mean())
+    showMe(avg, range =range)

@@ -1,3 +1,4 @@
+from genericpath import isdir
 import os
 import time
 import numpy as np
@@ -23,9 +24,9 @@ from utils.signal import DCFilter
 from config.armband import *
 
 
-'''
+"""
 This script records file for previously given classes and saves it as numpy files.
-'''
+"""
 
 
 clear = lambda: os.system("cls")
@@ -38,6 +39,7 @@ def parse_args(args):
     parser = argparse.ArgumentParser()
     parser.add_argument("subject", help="SubjectID")
     parser.add_argument("--session", help="Number of Session", default="1")
+    parser.add_argument("--n_commands", help="Number of commands", default=1)
     return parser.parse_args(args)
 
 
@@ -62,6 +64,8 @@ def CollectData(
 
     board.start_stream(450000)
     i = 0
+    print("Waiting because DC filter...")
+    time.sleep(5)
     for task in tasks:
         clear()
         print("Stand By! ({}/{})".format(i + 1, len(tasks)))
@@ -86,12 +90,17 @@ def main(args=None):
     save_location = os.path.join(
         settings["save_location"], args.subject, "session_" + args.session
     )
+    if os.path.isdir(save_location):
+        print("Session already exists!")
+        return
     print("Saving data to {}".format(save_location))
 
     board = init()
 
     results, classes = CollectData(
-        board, signal_length=settings["signal_length"], n_samples_per_class=1
+        board,
+        signal_length=settings["signal_length"],
+        n_samples_per_class=int(args.n_commands),
     )
 
     pathlib.Path(save_location).mkdir(parents=True, exist_ok=False)
