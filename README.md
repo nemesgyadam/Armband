@@ -21,9 +21,7 @@ The script finds the contour of biggest black object(AKA palm)
 The script finds the contour of biggest green object(AKA finger)
 - Calculate the distance of the finger and palm
 
-## Usage
 
-python stream.py
 
 # EMG Data
 The project works with the Mindrove ArmBand device:\
@@ -32,6 +30,27 @@ The project works with the Mindrove ArmBand device:\
 The device uses the mindrove-brainflow package:
 >pip install mindrove-brainflow
 
-## Visualizer
-The visualize.ipynb visualize the live feed from the device.
+
+# Data Recording
+
+In order to record a dataset, ran the following 2 commands simultaneously:
+>CAM_record.py [subject]
+
+>EMG_record.py [subject]
+
+These scripts will output 2 csv-s with the EMG data and labels.
+
+# Load CSV
+
+>load_csvs.py
+
+The script will load a CAM and an EMG csv.
+
+Cut out the timespan when data available for both dataset.
+
+Resample both for 500 Hz,
+
+and Visualize the result.
+
+
 

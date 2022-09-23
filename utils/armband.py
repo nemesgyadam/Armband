@@ -1,10 +1,10 @@
-import brainflow
-from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
-from brainflow.board_shim import (
+import mindrove_brainflow
+from mindrove_brainflow.data_filter import DataFilter, FilterTypes, AggOperations
+from mindrove_brainflow.board_shim import (
     BoardShim,
     BrainFlowInputParams,
     BoardIds,
-    BrainFlowError,
+    BrainFlowError
 )
 
 

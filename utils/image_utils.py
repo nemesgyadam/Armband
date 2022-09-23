@@ -9,6 +9,8 @@ def get_green_contour(img, settings):
     green_mask = cv2.inRange(
         hsv, settings["green_limit_low"], settings["green_limit_high"]
     )
+    #cv2.imshow('green mask', green_mask)
+
     cnts, hierarchy = cv2.findContours(
         green_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
     )
@@ -32,7 +34,7 @@ def get_black_contour(img, settings):
 
     kernel = np.ones((settings["dilate_kernel"], settings["dilate_kernel"]), np.uint8)
     img = cv2.dilate(img, kernel, iterations=settings["dilate_iterations"])
-    cv2.imshow("dilate", img)
+    #cv2.imshow("dilate", img)
     # kernel = np.ones((5,5),np.uint8)
     # img = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
     # cv2.imshow('morpholgy', img)
@@ -40,7 +42,7 @@ def get_black_contour(img, settings):
     try:
         return max(cnts, key=cv2.contourArea)
     except:
-        print("No contours found")
+        #print("No contours found")
         return None
 
 
@@ -75,7 +77,7 @@ def center(cnt):
     """
     moments = cv2.moments(cnt)
     if max(moments.values()) < 0.1:
-        print("No green found")
+       # print("No green found")
         return None
     cX = int(moments["m10"] / moments["m00"])
     cY = int(moments["m01"] / moments["m00"])

@@ -1,0 +1,150 @@
+Trial 400 Complete [00h 01m 50s]
+val_accuracy: 0.75
+
+Best val_accuracy So Far: 0.8500000238418579
+Total elapsed time: 16h 06m 22s
+INFO:tensorflow:Oracle triggered exit
+Results summary
+Results in .\untitled_project
+Showing 10 best trials
+<keras_tuner.engine.objective.Objective object at 0x0000020849E25330>
+Trial summary
+Hyperparameters:
+resample: 1
+l2: 0.005
+pool_1: 100
+conv_1: 100
+pool_2: 1
+conv_2: 50
+dense: 50
+droupout: 0.1
+flatten: 1
+lr: 0.01
+decay: 0.9
+Score: 0.8500000238418579
+Trial summary
+Hyperparameters:
+resample: 1
+l2: 0.005
+pool_1: 100
+conv_1: 50
+pool_2: 1
+conv_2: 50
+dense: 50
+droupout: 0.1
+flatten: 0
+lr: 0.0003069273045576997
+decay: 0.9
+Score: 0.800000011920929
+Trial summary
+Hyperparameters:
+resample: 1
+l2: 0.005
+pool_1: 100
+conv_1: 100
+pool_2: 1
+conv_2: 20
+dense: 50
+droupout: 0.1
+flatten: 0
+lr: 0.01
+decay: 0.9
+Score: 0.800000011920929
+Trial summary
+Hyperparameters:
+resample: 1
+l2: 0.005
+pool_1: 100
+conv_1: 100
+pool_2: 1
+conv_2: 50
+dense: 20
+droupout: 0.2
+flatten: 0
+lr: 0.008106668382611886
+decay: 0.9
+Score: 0.800000011920929
+Trial summary
+Hyperparameters:
+resample: 2
+l2: 0.005
+pool_1: 100
+conv_1: 100
+pool_2: 1
+conv_2: 50
+dense: 50
+droupout: 0.1
+flatten: 0
+lr: 0.00531079122242838
+decay: 0.9
+Score: 0.800000011920929
+Trial summary
+Hyperparameters:
+resample: 2
+l2: 0.0005
+pool_1: 100
+conv_1: 10
+pool_2: 4
+conv_2: 100
+dense: 50
+droupout: 0.4
+flatten: 0
+lr: 0.01
+decay: 0.9
+Score: 0.800000011920929
+Trial summary
+Hyperparameters:
+resample: 1
+l2: 0.0005
+pool_1: 100
+conv_1: 100
+pool_2: 1
+conv_2: 50
+dense: 50
+droupout: 0.1
+flatten: 0
+lr: 0.005369707537074262
+decay: 0.9
+Score: 0.800000011920929
+Trial summary
+Hyperparameters:
+resample: 1
+l2: 0.005
+pool_1: 100
+conv_1: 100
+pool_2: 1
+conv_2: 50
+dense: 50
+droupout: 0.1
+flatten: 0
+lr: 0.00511204790485422
+decay: 0.9
+Score: 0.800000011920929
+Trial summary
+Hyperparameters:
+resample: 1
+l2: 0.005
+pool_1: 100
+conv_1: 100
+pool_2: 3
+conv_2: 50
+dense: 50
+droupout: 0.3
+flatten: 0
+lr: 0.006253361503109919
+decay: 0.9
+Score: 0.800000011920929
+Trial summary
+Hyperparameters:
+resample: 1
+l2: 0.005
+pool_1: 100
+conv_1: 100
+pool_2: 1
+conv_2: 50
+dense: 50
+droupout: 0.1
+flatten: 0
+lr: 0.004728490951019029
+decay: 0.9
+Score: 0.800000011920929

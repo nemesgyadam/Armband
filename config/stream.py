@@ -1,5 +1,17 @@
 settings = {
-    # VIDEO SETTINGS
+    "data_path": "data",
+    "signal_length": 2,
+    "save_location": "data",
+    "classes": ["Rest", "Left", "Right", "Fist"],
+    "normalize_range": [-5000, 5000],
+    "input_length": 1000,  # AKA resampleTO
+
+
+    ######################################################
+    ###############    VIDEO SETTINGS    #################
+    ######################################################
+
+     # VIDEO SETTINGS
     #"stream_url": "http://192.168.0.107:4747/video",
     #"stream_url": "resources/fist.mp4",
     #"stream_url": "resources/all_moves.mp4",
@@ -8,8 +20,7 @@ settings = {
     "image_rotation": 90, 
     
     # PALM ANGLE SETTINGS
-    #"black_upper_limit" : 20,
-    "black_upper_limit" : 30,
+    "black_upper_limit" : 20,
     "gauss_blur" : 5,
     "dilate_kernel" : 3,
     "dilate_iterations" : 3,

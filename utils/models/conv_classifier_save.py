@@ -15,18 +15,18 @@ def get_conv_classifier(X_shape, y_shape):
     l2 = 0.005
         
    
-    x     = layers.Conv2D(4, kernel_size=(4,4), padding='same', activation='elu', kernel_regularizer=regularizers.l2(l2))(x)
+    x     = layers.Conv2D(100, kernel_size=(1,100), padding='same', activation='elu', kernel_regularizer=regularizers.l2(l2))(x)
     x     = layers.BatchNormalization()(x)
-    x     = layers.AveragePooling2D(pool_size=(4,4))(x)
+    x     = layers.AveragePooling2D(pool_size=(1,100))(x)
 
-    x     = layers.Conv2D(16, kernel_size=(4,4), padding='same', activation='elu', kernel_regularizer=regularizers.l2(l2))(x)
+    x     = layers.Conv2D(100, kernel_size=(1,1), padding='same', activation='elu', kernel_regularizer=regularizers.l2(l2))(x)
     x     = layers.BatchNormalization()(x)
-    x     = layers.AveragePooling2D(pool_size=(2,2))(x)
+    x     = layers.AveragePooling2D(pool_size=(1,1))(x)
     x     = layers.BatchNormalization()(x)
-    #x     = layers.Flatten()(x)
-    x     = tf.keras.layers.GlobalAveragePooling2D()(x)
-    x     = layers.Dense(30,kernel_regularizer=regularizers.l2(l2))(x)
-    x     = layers.Dropout(.2)(x)
+    x     = layers.Flatten()(x)
+    #x     = tf.keras.layers.GlobalAveragePooling2D()(x)
+    x     = layers.Dense(20,kernel_regularizer=regularizers.l2(l2))(x)
+    x     = layers.Dropout(.1)(x)
 
     output = layers.Dense(y_shape[-1], activation='softmax')(x)
     model = keras.Model(inputs=input_layer, outputs=output)

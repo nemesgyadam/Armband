@@ -5,8 +5,12 @@ from IPython.display import clear_output
 def showMe(data, range=[-10000, 10000], clear=False):
     if clear:
         clear_output(wait=True)
+    plt.close()
     plt.rcParams["figure.figsize"] = [17, 2]
     fig, (c1, c2, c3, c4, c5, c6, c7, c8) = plt.subplots(1, 8)
+
+  
+
     c1.set_ylim(range[0], range[1])
     c2.set_ylim(range[0], range[1])
     c3.set_ylim(range[0], range[1])
@@ -23,7 +27,10 @@ def showMe(data, range=[-10000, 10000], clear=False):
     c6.plot(data[5])
     c7.plot(data[6])
     c8.plot(data[7])
+    
     plt.show(block = False)
+    plt.draw()
+    plt.pause(0.001)
     #plt.draw()
 
 def showHistory(history):
