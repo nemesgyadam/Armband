@@ -1,13 +1,15 @@
 settings = {
     # VIDEO SETTINGS
     #"stream_url": "http://192.168.0.107:4747/video",
-    "stream_url": "resources/fist.mp4",
-    "stream_url": "resources/all_moves.mp4",
+    #"stream_url": "resources/fist.mp4",
+    #"stream_url": "resources/all_moves.mp4",
+    "stream_url": 0,
     "process_shape": (400, 225),
     "image_rotation": 90, 
     
     # PALM ANGLE SETTINGS
-    "black_upper_limit" : 20,
+    #"black_upper_limit" : 20,
+    "black_upper_limit" : 30,
     "gauss_blur" : 5,
     "dilate_kernel" : 3,
     "dilate_iterations" : 3,
@@ -29,6 +31,9 @@ settings = {
     "y_std_meas" : 90,
 
     # FIST SETTINGS
-    "green_limit_low": (20, 30, 30),
-    "green_limit_high": (70,255,255),
+    # old
+    # "green_limit_low": (20, 30, 30),
+    # "green_limit_high": (70,255,255),
+    "green_limit_low": (10, 100, 100),
+    "green_limit_high": (100,255,255),
 }
