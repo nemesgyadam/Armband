@@ -28,7 +28,7 @@ def get_black_contour(img, settings):
     lower = np.uint8([0])
     upper = np.uint8([settings["black_upper_limit"]])
     img = cv2.inRange(img, lower, upper)
-    # cv2.imshow('balck', img)
+    cv2.imshow('black', img)
     img = cv2.GaussianBlur(img, (settings["gauss_blur"], settings["gauss_blur"]), 0)
     # cv2.imshow('gauss', img)
 
