@@ -60,9 +60,8 @@ def main(args=None):
             ref_base = base - ref0
             ref_short = ref9 - ref0
             ref_long = ref12 -ref0
-            print(base, ref0, )     
-            print(ref_base, ref_short, ref_long)
-            print(angle(ref_base, ref_short), angle(ref_base, ref_long))
+
+            print(settings['classes'][idx], angle(ref_base, ref_short), angle(ref_base, ref_long))
             print()
             idx += 1
     cv2.destroyAllWindows()
@@ -76,8 +75,10 @@ def length(v):
   return math.sqrt(dotproduct(v, v))
 
 def angle(v1, v2):
-  return math.degrees(math.acos(dotproduct(v1, v2) / (length(v1) * length(v2))))
-
+  if v1[0] > v2[0]:
+    return math.degrees(math.acos(dotproduct(v1, v2) / (length(v1) * length(v2))))
+  else:
+    return -math.degrees(math.acos(dotproduct(v1, v2) / (length(v1) * length(v2))))
 
 
 if __name__ == '__main__':
