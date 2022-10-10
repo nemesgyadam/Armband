@@ -29,7 +29,7 @@ def parse_args(args):
 
 def main(args=None):
     args = parse_args(args)
-    save_name = os.path.join('timestamped_data','EMG',args.subject,datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")+'.csv')
+    save_name = os.path.join('raw_data','EMG',args.subject,datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")+'.csv')
     if not os.path.exists(os.path.dirname(save_name)):
         os.makedirs(os.path.dirname(save_name))
 

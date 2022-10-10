@@ -12,14 +12,16 @@ def load_set(session):
     y_store = data[["distance","degree"]].values.T
     return X_store, y_store
 
-def load_continous_data(sessions):
+def load_train_data(sessions):
     honey_pot_X = []
     honey_pot_y = []
+
+    print(f"Loading {len(sessions)} sessions...")
     for session in sessions:
         X_store, y_store = load_set(session)
+        # print(f"X_store shape: {X_store.shape}")
+        # print(f"y_store shape: {y_store.shape}")
         honey_pot_X.append(X_store)
         honey_pot_y.append(y_store)
-    honey_pot_X = np.squeeze(np.array(honey_pot_X))
-    honey_pot_y = np.squeeze(np.array(honey_pot_y))
     return honey_pot_X, honey_pot_y
 

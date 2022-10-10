@@ -1,5 +1,5 @@
 *.pyc
 data/*
 data_stash/*
-timestamped_data/*
+raw_data/*
 untitled_project/*

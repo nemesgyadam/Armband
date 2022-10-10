@@ -1,7 +1,7 @@
 import numpy as np
 import keras
 import os
-from utils.continous_data import load_continous_data
+from utils.continous_data import load_train_data
 from utils.sampler import Sampler
 
 class SamplerGenerator(keras.utils.Sequence):
@@ -22,7 +22,8 @@ class SamplerGenerator(keras.utils.Sequence):
             for session in os.listdir(os.path.join(self.data_path,subject)):
                 sessions.append(os.path.join(self.data_path, subject,session))
 
-        self.honey_pot_X, self.honey_pot_y = load_continous_data(sessions)
+        self.honey_pot_X, self.honey_pot_y = load_train_data(sessions)
+        print("Loaded {} sessions".format(len(sessions)))
 
     def __len__(self):
         'Denotes the number of batches per epoch'

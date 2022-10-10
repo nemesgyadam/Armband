@@ -10,13 +10,19 @@ class Sampler:
     def sample(self):
         result_X = []
         result_y = []
+        n_sessions = len(self.honey_pot_X)
         for i in range(self.batch_size):
-            start = np.random.randint(0, self.honey_pot_X.shape[-1]-500)
-            sample_X = self.honey_pot_X[:,start:start+500]
+            # Handle multiple sessions
+            session_id = np.random.randint(0, n_sessions)
+            session_X = self.honey_pot_X[session_id]
+            session_y = self.honey_pot_y[session_id]
+            
+            start = np.random.randint(0, session_X.shape[-1]-500)
+            sample_X = session_X[:,start:start+500]
             if self.end_label:
-                sample_y = self.honey_pot_y[:,start+500]
+                sample_y = session_y[:,start+500]
             else:
-                sample_y = self.honey_pot_y[:,start:start+500]
+                sample_y = session_y[:,start:start+500]
             result_X.append(sample_X)
             result_y.append(sample_y)
         return np.array(result_X), np.array(result_y)

@@ -10,38 +10,39 @@ def get_timespan(df):
     return df['timestamp'].iloc[-1] - df['timestamp'].iloc[0]
 
 def load_data(args):
-    CAM_df = pd.read_csv(os.path.join('timestamped_data','CAM',args.subject,args.CAM_timestamp+'.csv'))
-    EMG_df = pd.read_csv(os.path.join('timestamped_data','EMG',args.subject,args.EMG_timestamp+'.csv'))
-    CAM_df[['distance', 'degree']] = CAM_df[['distance', 'degree']].astype(float)
+    LEAP_df = pd.read_csv(os.path.join('raw_data','LEAP',args.subject,args.LEAP_timestamp+'.csv'))
+    EMG_df = pd.read_csv(os.path.join('raw_data','EMG',args.subject,args.EMG_timestamp+'.csv'))
+    LEAP_df[['distance', 'degree']] = LEAP_df[['distance', 'degree']].astype(float)
     EMG_df[['c0','c1','c2','c3','c4','c5','c6','c7']] = EMG_df[['c0','c1','c2','c3','c4','c5','c6','c7']].astype(float)
 
-    CAM_df['timestamp'] = pd.to_datetime(CAM_df['timestamp'])
+    LEAP_df['timestamp'] = pd.to_datetime(LEAP_df['timestamp'])
     EMG_df['timestamp'] = pd.to_datetime(EMG_df['timestamp'])
 
 
     # FIND COMMON TIME INTERVAL
-    CAM_start = CAM_df['timestamp'].iloc[0]
-    CAM_end = CAM_df['timestamp'].iloc[-1]
+    LEAP_start = LEAP_df['timestamp'].iloc[0]
+    LEAP_end = LEAP_df['timestamp'].iloc[-1]
     EMG_start = EMG_df['timestamp'].iloc[0]
     EMG_end = EMG_df['timestamp'].iloc[-1]
-    start = max(CAM_start, EMG_start)
-    end = min(CAM_end, EMG_end)
-    print(start)
-    print(end)
-    CAM_df = CAM_df[(CAM_df['timestamp'] >= start) & (CAM_df['timestamp'] <= end)]
+    print("LEAP start: ", LEAP_start)
+    print("LEAP end: ", LEAP_end)
+    print("EMG start: ", EMG_start)
+    print("EMG end: ", EMG_end)
+    start = max(LEAP_start, EMG_start)
+    end = min(LEAP_end, EMG_end)
+ 
+    LEAP_df = LEAP_df[(LEAP_df['timestamp'] >= start) & (LEAP_df['timestamp'] <= end)]
     EMG_df = EMG_df[(EMG_df['timestamp'] >= start) & (EMG_df['timestamp'] <= end)]
 
-    print(len(CAM_df))
-    print(len(EMG_df))
 
 
 
     print("Resampling...")
-    #Resample CAM data to 500Hz
-    CAM_df = CAM_df.set_index('timestamp')
-    CAM_df = CAM_df.resample('2ms').mean()
-    CAM_df = CAM_df.interpolate(method='linear')
-    CAM_df = CAM_df.reset_index()
+    #Resample LEAP data to 500Hz
+    LEAP_df = LEAP_df.set_index('timestamp')
+    LEAP_df = LEAP_df.resample('2ms').mean()
+    LEAP_df = LEAP_df.interpolate(method='linear')
+    LEAP_df = LEAP_df.reset_index()
 
     # Resample EMG data to 500Hz
     EMG_df = EMG_df.set_index('timestamp')
@@ -49,29 +50,33 @@ def load_data(args):
     EMG_df = EMG_df.interpolate(method='linear')
     EMG_df = EMG_df.reset_index()
     
-    if len(CAM_df) > len(EMG_df):
-        CAM_df = CAM_df.iloc[:len(EMG_df)]
+    if len(LEAP_df) > len(EMG_df):
+        LEAP_df = LEAP_df.iloc[:len(EMG_df)]
     else:
-        EMG_df = EMG_df.iloc[:len(CAM_df)]
+        EMG_df = EMG_df.iloc[:len(LEAP_df)]
    
-    return CAM_df, EMG_df
+    return LEAP_df, EMG_df
 
 def parse_args(args):
     parser = argparse.ArgumentParser()
     parser.add_argument("subject", help="Name or ID of the subject")
-    parser.add_argument("CAM_timestamp", help="Name or ID of the CAM session")
-    parser.add_argument("EMG_timestamp", help="Name or ID of the CAM session")
+    parser.add_argument("LEAP_timestamp", help="Name or ID of the LEAP session")
+    parser.add_argument("EMG_timestamp", help="Name or ID of the LEAP session")
     return parser.parse_args(args)
 
 def main(args=None):
     args = parse_args(args)
-    CAM_df, EMG_df = load_data(args)
+    LEAP_df, EMG_df = load_data(args)
   
-    df = pd.concat([CAM_df.set_index('timestamp'), EMG_df.set_index('timestamp')], axis=1, join = 'inner').reset_index()
+    df = pd.concat([LEAP_df.set_index('timestamp'), EMG_df.set_index('timestamp')], axis=1, join = 'inner').reset_index()
+    if len(df)==0:
+        print("No common section found")
+        return
     timestamp = df['timestamp'].iloc[0].strftime("%Y-%m-%d_%H-%M")
-    os.mkdir(path=os.path.join('continous_data',args.subject))
-    df.to_csv(os.path.join('continous_data',args.subject,timestamp+'.csv'), index=False)
-    print("Merged csv saved to continous_data/"+args.subject+"/"+timestamp+".csv")
+    if not os.path.isdir(os.path.join('train_data',args.subject)):
+        os.mkdir(path=os.path.join('train_data',args.subject))
+    df.to_csv(os.path.join('train_data',args.subject,timestamp+'.csv'), index=False)
+    print("Merged csv saved to train_data/"+args.subject+"/"+timestamp+".csv")
     
    
 

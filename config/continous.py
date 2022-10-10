@@ -1,5 +1,5 @@
 settings = {
-    "data_path": "continous_data",
+    "data_path": "train_data",
     "signal_length": 1,
     "save_location": "data",
     "targets": ['Distance', 'Degree'],
