@@ -7,6 +7,8 @@ import time
 import datetime
 import argparse
 
+from config.armband import *
+
 src_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
 # Windows and Linux
 arch_dir = '../lib/x64' if sys.maxsize > 2**32 else '../lib/x86'
@@ -39,6 +41,10 @@ def main(args=None):
     last_frame = -1
     iteration = 0
     started = False
+    patient = 0
+
+    distance_store = []
+    degree_store = []
     with open(save_name, mode="a") as csv_file:
         csv_file.write('timestamp,distance,degree\n')
 
@@ -52,10 +58,18 @@ def main(args=None):
                     clear()
                     print("No hands detected")
                     if started:
-                        print("Hand lost, stopping recording")
-                        break
+                        patient += 1
+                        if patient > settings["patient_threshold"]:
+                            print("Hand lost, stopping recording")
+                            break
+                        else:
+                            # KEEP STORING LAST KNOWN DATA
+                            line = str(timestamp) + "," + str(grab) +"," + str(yaw)
+                            distance_store.append(grab)
+                            degree_store.append(yaw)
+                            
                 elif len(frame.hands) == 1:
-                  
+                    patient = 0
                     started = True
                     hand = frame.hands[0]
 
@@ -64,8 +78,18 @@ def main(args=None):
                     yaw = min(max(yaw, -1.0), 1.0)
      
                     line = str(timestamp) + "," + str(grab) +"," + str(yaw)
+                    distance_store.append(grab)
+                    degree_store.append(yaw)
                     clear()
                     print(line)
+                    print ' '
+                    print "Distance average:", sum(distance_store)/len(distance_store)
+                    
+                    left =  filter(lambda degree: degree < -0.6, degree_store)
+                    right = filter(lambda degree: degree > 0.2, degree_store)
+                    middle = len(degree_store) - len(left) - len(right)
+                    print("Middle: {}, Left: {}, Right: {}".format(middle, len(list(left)), len(list(right))))
+
                     csv_file.write(line+'\n')
                 elif len(frame.hands) > 1:
                     print("Too many hands detected")

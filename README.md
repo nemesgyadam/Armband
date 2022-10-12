@@ -100,7 +100,7 @@ For training use the train_continous.ipynb notebook
 * Activate "env27" virtualenv in terminal A
 * Start the leap motion Visulaizer in order to validate hand postion during recording(Optional)
 
-(The recording will start when hand appears and stop when disappears)
+
 * Apply NaCl solution to the Mindrove Armband electrodes
 * Put on Armband to subject, placement:\
     - right hand

@@ -35,19 +35,23 @@ def showMe(data, range=[-10000, 10000], clear=False):
 
 def showHistory(history):
     plt.rcParams["figure.figsize"] = [5, 5]
-    for key in history.history.keys():
+    with plt.rc_context({'figure.facecolor':'white'}):
+   
+        for key in history.history.keys():
 
-        if "val_" not in key and "lr" != key:
-            try:
-                plt.clf()
-                plt.plot(history.history[key])
-                plt.plot(history.history["val_" + key])
-                plt.ylabel(key)
-                plt.xlabel("epoch")
-                plt.legend(["train", "validation"], loc="upper left")
-                plt.show()
-            except:
-                ...
+            if "val_" not in key and "lr" != key:
+                try:
+                    plt.clf()
+                    
+
+                    plt.plot(history.history[key])
+                    plt.plot(history.history["val_" + key])
+                    plt.ylabel(key)
+                    plt.xlabel("epoch")
+                    plt.legend(["train", "validation"], loc="upper left")
+                    plt.show()
+                except:
+                    ...
 
 
 
