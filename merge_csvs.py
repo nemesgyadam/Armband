@@ -73,10 +73,16 @@ def main(args=None):
         print("No common section found")
         return
     timestamp = df['timestamp'].iloc[0].strftime("%Y-%m-%d_%H-%M")
-    if not os.path.isdir(os.path.join('train_data',args.subject)):
-        os.mkdir(path=os.path.join('train_data',args.subject))
-    df.to_csv(os.path.join('train_data',args.subject,timestamp+'.csv'), index=False)
-    print("Merged csv saved to train_data/"+args.subject+"/"+timestamp+".csv")
+    if not os.path.isdir(os.path.join('train_data','train',args.subject)):
+        os.mkdir(path=os.path.join('train_data','train',args.subject))
+    #df.to_csv(os.path.join('train_data',args.subject,timestamp+'.csv'), index=False)
+
+    features = df[["c0","c1","c2","c3","c4","c5","c6","c7"]].values.T
+    labels   = df[["distance","degree"]].values.T
+    data = np.concatenate((features, labels), axis=0)
+
+    np.save(os.path.join('train_data','train',args.subject,timestamp+'.npy'), data)
+    print("Merged csv saved to train_data/train"+args.subject+"/"+timestamp+".npy")
     
    
 

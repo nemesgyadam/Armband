@@ -52,6 +52,7 @@ class SamplerGenerator(keras.utils.Sequence):
     def on_epoch_end(self):
         'Updates indexes after each epoch'
         if self.sampler == 'overlap':
-            self.sampler.shuffle()
+            self.sampler.split_data()
+            
 
    

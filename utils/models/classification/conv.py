@@ -9,15 +9,17 @@ def get_model(end_label = True, targets = ['Distance', 'Degree']):
     inspected_chanels= 8
     input_length=     500
     input_layer = keras.Input(shape = (inspected_chanels,input_length), name='input')
+    x = layers.Reshape((inspected_chanels,input_length,1))(input_layer)
     #x = layers.MaxPooling1D(pool_size= 1, data_format = 'channels_first')(input_layer)
-    x = input_layer
+   
     l2 =0.0001
 
-    x = layers.Dense(100, activation='relu', kernel_regularizer=regularizers.l2(l2))(x)
-    x = layers.Dense(100, activation='relu', kernel_regularizer=regularizers.l2(l2))(x)
+    x = layers.Conv2D(200, kernel_size=(8,10), padding='same', activation='elu', kernel_regularizer=regularizers.l2(l2))(x)
+
+    
     x = layers.Dropout(.2)(x)
-    #x = layers.GlobalMaxPooling1D()(x)
-    x = layers.Flatten()(x)
+    x = layers.GlobalMaxPooling2D()(x)
+    
     # distance = layers.Dense(50, activation='relu', kernel_regularizer=regularizers.l2(l2))(x)
     # distance = layers.Dropout(.2)(distance)
     # distance= layers.GlobalMaxPooling1D()(distance)

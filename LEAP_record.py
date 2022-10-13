@@ -88,7 +88,7 @@ def main(args=None):
                     left =  filter(lambda degree: degree < -0.6, degree_store)
                     right = filter(lambda degree: degree > 0.2, degree_store)
                     middle = len(degree_store) - len(left) - len(right)
-                    print("Middle: {}, Left: {}, Right: {}".format(middle, len(list(left)), len(list(right))))
+                    print("Left: {}, Middle: {}, Right: {}".format(len(list(left)), middle, len(list(right))))
 
                     csv_file.write(line+'\n')
                 elif len(frame.hands) > 1:

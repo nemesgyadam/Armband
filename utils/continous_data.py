@@ -7,9 +7,15 @@ import random
 import pandas as pd
 
 def load_set(session):
-    data = pd.read_csv(session)
-    X_store = data[["c0","c1","c2","c3","c4","c5","c6","c7"]].values.T
-    y_store = data[["distance","degree"]].values.T
+    # data = pd.read_csv(session)
+    # X_store = data[["c0","c1","c2","c3","c4","c5","c6","c7"]].values.T
+    # y_store = data[["distance","degree"]].values.T
+    data = np.load(session, allow_pickle=True)
+    X_store = data[ :8]
+    y_store = data[ 8:]
+    print(session)
+    print(f"X_store shape: {X_store.shape}")
+    print(f"y_store shape: {y_store.shape}")
     return X_store, y_store
 
 def load_train_data(sessions):
