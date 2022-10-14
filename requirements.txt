@@ -3,3 +3,4 @@ cv2
 matplotlib
 scipy
 mindrove-brainflow
+pyautogui

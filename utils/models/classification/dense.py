@@ -7,14 +7,14 @@ from tensorflow.keras import regularizers
 
 def get_model(end_label = True, targets = ['Distance', 'Degree']):
     inspected_chanels= 8
-    input_length=     500
+    input_length=     1000
     input_layer = keras.Input(shape = (inspected_chanels,input_length), name='input')
     #x = layers.MaxPooling1D(pool_size= 1, data_format = 'channels_first')(input_layer)
     x = input_layer
-    l2 =0.0001
+    l2 =0.0002
 
     x = layers.Dense(100, activation='relu', kernel_regularizer=regularizers.l2(l2))(x)
-    x = layers.Dense(100, activation='relu', kernel_regularizer=regularizers.l2(l2))(x)
+    x = layers.Dense(50, activation='relu', kernel_regularizer=regularizers.l2(l2))(x)
     x = layers.Dropout(.2)(x)
     #x = layers.GlobalMaxPooling1D()(x)
     x = layers.Flatten()(x)

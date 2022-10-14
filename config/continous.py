@@ -4,7 +4,7 @@ settings = {
     "save_location": "data",
     "targets": ['Distance', 'Degree'],
     "normalize_range": [-10000, 10000],
-    "input_length": 500,  # AKA resampleTO
+    "input_length": 1000,  # AKA resampleTO
     "sampler": "overlap",  #"random" | "overlap"
     "overlap": 400,
     "batch_size": 200
