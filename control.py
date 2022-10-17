@@ -47,79 +47,50 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def configure(board, model, n_commands=5):
-    print("Running configureation...")
-
-    # Collect tune data
-    results, _ = CollectData(
-        board,
-        classes=settings["classes"],
-        signal_length=settings["signal_length"],
-        n_samples_per_class=n_commands,
-    )
-
-    # Preprocess data
-    pre_processed = []
-    for result in np.vstack(results):
-        pre_processed.append(np.array(normalize(result)))
-
-    # Formating
-    X = np.array(pre_processed)
-    y = range(len(settings["classes"]))
-    y = np.repeat(y, n_commands)
-    y = tf.keras.utils.to_categorical(y, len(settings["classes"]))
-    print("X shape: ", X.shape)
-    print("y shape: ", y.shape)
-    X, y = apply_augment(X, y)
-
-    # TRAINING
-    opt = keras.optimizers.Adam(learning_rate=0.01)
-    loss = tf.keras.losses.CategoricalCrossentropy(
-        from_logits=False, label_smoothing=0.0, name="categorical_crossentropy"
-    )
-    model.compile(optimizer=opt, loss=loss, metrics=["accuracy"])
-    history = model.fit(
-        X,
-        y,
-        batch_size=len(settings["classes"]) * n_commands,
-        epochs=10,
-        shuffle=True,
-    )
-    showHistory(history)
-    return model
-
-def decode(pred, threshold = 0.5):
+def decode(pred, key_control=False):
     gas_pred = pred[0][0][0]
     direction_pred = pred[1][0]
-    gases = ["Stop","Go"]
+    gases = ["Stop", "Go"]
     directions = ["Middle", "Right", "Left"]
 
-    if gas_pred> threshold:
-         gas_text = gases[1]
-         pyautogui.keyDown('up')
-    else:
-        gas_text = gases[0]
-        pyautogui.keyUp('up')
+    gas = gas_pred > settings["thresholds"]["gas"]
 
-    direction = np.argmax(direction_pred)
-    direction_text = directions[direction]
-    if direction == 1:
-        pyautogui.keyDown('right')
-        pyautogui.keyUp('left')
-    elif direction == 2:
-        pyautogui.keyDown('left')
-        pyautogui.keyUp('right')
+    if direction_pred < settings["thresholds"]["left"]:
+        direction = 2
+    elif direction_pred > settings["thresholds"]["right"]:
+        direction = 1
     else:
-        pyautogui.keyUp('right')
-        pyautogui.keyUp('left')
-    clear()
+        direction = 0
+    # direction = np.argmax(direction_pred)
+
+    if key_control:
+        if gas == 0:
+            pyautogui.keyUp("up")
+        elif gas == 1:
+            pyautogui.keyDown("up")
+
+        if direction == 1:
+            pyautogui.keyDown("right")
+            pyautogui.keyUp("left")
+        elif direction == 2:
+            pyautogui.keyDown("left")
+            pyautogui.keyUp("right")
+        else:
+            pyautogui.keyUp("right")
+            pyautogui.keyUp("left")
+
+    gas_text = gases[gas]
+    direction_text = directions[direction]
+    print("Value:")
+    print(f"Gas: {gas_pred} Direction: {direction_pred}")
+    print("Command:")
     print(f"Gas: {gas_text}, Direction: {direction_text}")
 
 
 def run(board, model, signal_length=1):
     sample_rate = board.get_sampling_rate(16)
     board.start_stream(450000)
-    data_window = 2 #sec
+    data_window = 2  # sec
     time.sleep(2)
     # board.start_stream(450000)
 
@@ -129,25 +100,28 @@ def run(board, model, signal_length=1):
     times = []
     while True:
         start = perf_counter_ns()
-        data = board.get_current_board_data(sample_rate*(data_window+1)) # 10 seconds for DC filter
+        data = board.get_current_board_data(
+            sample_rate * (data_window + 1)
+        )  # 10 seconds for DC filter
 
-
-        sos = signal.butter(4, 10, 'hp', fs=500, output='sos')
-        data= signal.sosfilt(sos, data)
+        sos = signal.butter(4, 10, "hp", fs=500, output="sos")
+        data = signal.sosfilt(sos, data)
         data = DCFilter(data)
-        data = data[
-            :8, -sample_rate * data_window :
-        ] 
+        data = data[:8, -sample_rate * data_window :]
         data = normalize(data, False)
         data = np.expand_dims(data, axis=0)
+        pre_start = perf_counter_ns()
         pred = model(data)
-        #print(pred)
+        pre_end = perf_counter_ns()
+
+        clear()
         decode(pred)
+        print()
+        print()
         end = perf_counter_ns()
-        times.append(end-start)
+        times.append(end - start)
         print(f"Average time: {np.mean(times)/1e6} ms")
-
-
+        print(f"Prediction time: {(pre_end-pre_start)/1e6} ms")
 
 
 def main(args=None):
@@ -159,7 +133,7 @@ def main(args=None):
 
     board = init()
 
-    #model = configure(board, model=model)
+    # model = configure(board, model=model)
     run(board, model=model, signal_length=settings["signal_length"])
 
     board.stop_stream()
