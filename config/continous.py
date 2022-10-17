@@ -7,5 +7,7 @@ settings = {
     "input_length": 1000,  # AKA resampleTO
     "sampler": "overlap",  #"random" | "overlap"
     "overlap": 400,
-    "batch_size": 200
+    "batch_size": 200,
+     # Contorl
+    "thresholds": {"gas": 0.5, "left": 0.3,"right":0.7},
 }

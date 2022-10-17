@@ -76,20 +76,20 @@ class OverlapSampler:
         y_pot = y_pot.reshape( int(y_pot.shape[0]/self.batch_size), self.batch_size,y_pot.shape[1])
         return X_pot, y_pot
 
-    def get_targets(self, result_y, classify = True):
-      
-        if classify:
+    def get_targets(self, result_y, classify = False):
+           
+        with plt.rc_context({'figure.facecolor':'white'}):
             distance = result_y[:,0:1]
             degree = result_y[:,1:2]
+            fig, axs = plt.subplots(2, 2, figsize=(20, 10))
+            axs[0,0].set_title('Distance Original')
+            axs[0,0].hist(distance)
+            axs[0,1].set_title('Degree Original')
+            axs[0,1].hist(degree)
+            if classify:
+               
 
             
-            with plt.rc_context({'figure.facecolor':'white'}):
-                fig, axs = plt.subplots(2, 2)
-                axs[0,0].set_title('Distance Original')
-                axs[0,0].hist(distance)
-                axs[0,1].set_title('Degree Original')
-                axs[0,1].hist(degree)
-             
 
                 distance[distance<0.5] = 0
                 distance[distance>=0.5] = 1
@@ -103,11 +103,12 @@ class OverlapSampler:
                 axs[1,0].hist(distance)
                 axs[1,1].set_title('Degree')
                 axs[1,1].hist(degree)
-                plt.show()
-               
+        
                 
+                    
 
-                result_y = np.concatenate((distance, degree), axis=1)
+            result_y = np.concatenate((distance, degree), axis=1)
+            plt.show()
 
         if 'distance' in self.targets and 'degree' not in self.targets:
             result_y = result_y[:,0:1]

@@ -1,42 +1,44 @@
- 
+
 import tensorflow as tf
 from tensorflow import keras 
 from tensorflow.keras import layers as layers
-from tensorflow.keras.layers import TimeDistributed, GlobalMaxPooling2D, Activation, Dense, Conv1D, Conv2D, Dropout, Flatten, MaxPooling2D, BatchNormalization, GlobalMaxPooling1D
+from tensorflow.keras.layers import GlobalMaxPooling2D, Activation, Dense, Conv1D, Conv2D, Dropout, Flatten, MaxPooling2D, BatchNormalization, GlobalMaxPooling1D
 from tensorflow.keras import regularizers
 
-def get_model(end_label = True):
+def get_model(end_label = True, targets = ['Distance', 'Degree']):
     inspected_chanels= 8
-    input_length=     500
+    input_length=     1000
     input_layer = keras.Input(shape = (inspected_chanels,input_length), name='input')
-    input_layer = tf.transpose(input_layer, perm=[0, 2, 1])
-    input_layer = tf.reshape(input_layer, (-1, 50, 10* 8))
-    x = input_layer
-    #x = layers.AveragePooling1D(pool_size= 1)(input_layer)
-    l2 =0.
+    x = tf.transpose(input_layer, perm=[0, 2, 1])
     
-    dense = keras.Sequential()
-    dense.add(layers.Dense(2, activation='elu', kernel_regularizer=regularizers.l2(l2)))
-    dense.add(layers.Dropout(.2))
+    # 2000ms to 10 100ms part
+    x = layers.Reshape((100, 10 * 8))(x)
+ 
+    l2 =0.0001
+    x  = tf.keras.layers.LSTM(250, kernel_regularizer=regularizers.l2(l2), dropout = 0.1, recurrent_dropout = 0.)(x)
 
+    distance = layers.Dense(20, kernel_regularizer=regularizers.l2(l2))(x)
+    distance = layers.Dense(10, kernel_regularizer=regularizers.l2(l2))(distance)
 
-    #x  = TimeDistributed(dense)(x)
-   
-    x     = tf.keras.layers.LSTM(20)(x)
-    #x     = tf.keras.layers.LSTM(20)(x)
+    degree = layers.Dense(20, kernel_regularizer=regularizers.l2(l2))(x)
+    degree = layers.Dense(10, kernel_regularizer=regularizers.l2(l2))(degree)
 
-    #x     = layers.Flatten()(x)
-    #x     = tf.keras.layers.GlobalAveragePooling2D()(x)
-    x     = layers.Dense(2,kernel_regularizer=regularizers.l2(l2))(x)
 
 
     if end_label:
-        distance_output = layers.Dense(1, activation = 'sigmoid')(x)
-        degree_output = layers.Dense(1)(x)
+        distance_output = layers.Dense(1, activation = 'sigmoid', name = 'distance')(distance)
+        degree_output = layers.Dense(1,activation = 'tanh', name = 'degree')(degree)
     else:
-        distance_output = layers.Dense(500, activation = 'sigmoid')(x)
-        degree_output = layers.Dense(500)(x)
-    model = keras.Model(inputs=input_layer, outputs=[distance_output])
+        distance_output = layers.Dense(500, activation = 'sigmoid')(distance)
+        degree_output = layers.Dense(500,activation = 'tanh', name = 'degree')(degree)
 
-    model.summary()
+        
+    outputs = []
+    if 'Distance' in targets:
+        outputs.append(distance_output)
+    if 'Degree' in targets:
+        outputs.append(degree_output)
+    model = keras.Model(inputs=input_layer, outputs=outputs)
+
+    #model.summary()
     return model
