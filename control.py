@@ -1,5 +1,5 @@
+
 import os
-import cv2
 import time
 import numpy as np
 import argparse
@@ -7,12 +7,10 @@ import pathlib
 import tensorflow as tf
 from tensorflow import keras
 from keras import backend as K
-from tqdm.notebook import tqdm
 import datetime
-from matplotlib import pyplot as plt
 from scipy import signal
-import pyautogui
-from time import perf_counter_ns
+
+#from time import perf_counter_ns
 import mindrove_brainflow
 from mindrove_brainflow.data_filter import DataFilter, FilterTypes, AggOperations
 from mindrove_brainflow.board_shim import (
@@ -23,11 +21,14 @@ from mindrove_brainflow.board_shim import (
 )
 
 
+
 from utils.armband import init
 from utils.visualize import showMe, showHistory
 from utils.signal import DCFilter, normalize
-from utils.record_utils import CollectData
 from utils.augment import apply_augment
+
+from utils.ros import connect, commands
+
 
 from config.armband import *
 
@@ -44,10 +45,11 @@ clear = lambda: os.system("cls")
 def parse_args(args):
     parser = argparse.ArgumentParser()
     parser.add_argument("model", help="model")
+    parser.add_argument("--target", help= "Device to control:(None, ros-continous, ros-step, keyboard)")
     return parser.parse_args(args)
 
 
-def decode(pred, key_control=False):
+def decode(pred, target):
     gas_pred = pred[0][0][0]
     direction_pred = pred[1][0]
     gases = ["Stop", "Go"]
@@ -63,12 +65,11 @@ def decode(pred, key_control=False):
         direction = 0
     # direction = np.argmax(direction_pred)
 
-    if key_control:
+    if target == 'keyboard':
         if gas == 0:
             pyautogui.keyUp("up")
         elif gas == 1:
             pyautogui.keyDown("up")
-
         if direction == 1:
             pyautogui.keyDown("right")
             pyautogui.keyUp("left")
@@ -78,6 +79,25 @@ def decode(pred, key_control=False):
         else:
             pyautogui.keyUp("right")
             pyautogui.keyUp("left")
+    elif target == 'ros-continous':
+        speed = commands['forward']
+        speed = speed.replace('speed', str(gas_pred))
+        talker.publish(commands['forward'])
+        direction = commands['turn']
+        direction = direction.replace('direction', str(direction_pred))
+        talker.publish(commands['turn'])
+    elif target == 'ros-step':
+        if gas == 1:
+                talker.publish(commands['forward'])
+            
+        if direction == 1:
+            talker.publish(commands['right'])
+        elif direction == 2:
+            talker.publish(commands['left'])
+    else:
+        print("invalid target")
+        quit()
+        
 
     gas_text = gases[gas]
     direction_text = directions[direction]
@@ -87,19 +107,22 @@ def decode(pred, key_control=False):
     print(f"Gas: {gas_text}, Direction: {direction_text}")
 
 
-def run(board, model, signal_length=1):
+def run(board, model, target, signal_length=1):
+    if 'ros' in target:
+        from utils.ros import connect, commands
+        ros, talker = connect()
+    if target == 'keyboard':
+        import pyautogui
     sample_rate = board.get_sampling_rate(16)
     board.start_stream(450000)
     data_window = 2  # sec
     time.sleep(2)
-    # board.start_stream(450000)
 
-    # print("Waiting because DC filter...")
-    time.sleep(2)
-
+    command_buffer = np.zeros((2, 100))
+    buffer_index = 0
     times = []
     while True:
-        start = perf_counter_ns()
+        #start = perf_counter_ns()
         data = board.get_current_board_data(
             sample_rate * (data_window + 1)
         )  # 10 seconds for DC filter
@@ -110,18 +133,45 @@ def run(board, model, signal_length=1):
         data = data[:8, -sample_rate * data_window :]
         data = normalize(data, False)
         data = np.expand_dims(data, axis=0)
-        pre_start = perf_counter_ns()
+        input(data.shape)
+        #pre_start = perf_counter_ns()
         pred = model(data)
-        pre_end = perf_counter_ns()
+        #pre_end = perf_counter_ns()
 
         clear()
-        decode(pred)
+        if target != 'ros-continous':
+            decode(pred, target)
+        else:
+            gas_pred = pred[0][0][0]
+            direction_pred = pred[1][0]
+          
+            gas = gas_pred > settings["thresholds"]["gas"]
+
+            if direction_pred < settings["thresholds"]["left"]:
+                direction = 2
+            elif direction_pred > settings["thresholds"]["right"]:
+                direction = 1
+            else:
+                direction = 0
+            command_buffer[0, buffer_index] = gas
+            command_buffer[1, buffer_index] = direction
+            buffer_index += 1
+            if buffer_index == 100:
+                print("calculating average")
+                gas_summ = np.sum(command_buffer[0, :])
+                unique, counts = numpy.unique(command_buffer[0, :], return_counts=True)
+                res = dict(zip(unique, counts))
+                left_summ = res[2]
+                right_summ = res[1]
+                print(f"gas: {gas_summ}, left: {left_summ}, right: {right_summ}")
+                command_buffer = np.zeros((2, 100))
+                buffer_index = 0
         print()
         print()
-        end = perf_counter_ns()
-        times.append(end - start)
-        print(f"Average time: {np.mean(times)/1e6} ms")
-        print(f"Prediction time: {(pre_end-pre_start)/1e6} ms")
+        #end = perf_counter_ns()
+        #times.append(end - start)
+        #print(f"Average time: {np.mean(times)/1e6} ms")
+        #print(f"Prediction time: {(pre_end-pre_start)/1e6} ms")
 
 
 def main(args=None):
@@ -134,7 +184,7 @@ def main(args=None):
     board = init()
 
     # model = configure(board, model=model)
-    run(board, model=model, signal_length=settings["signal_length"])
+    run(board, model=model, target = args.target, signal_length=settings["signal_length"])
 
     board.stop_stream()
     board.release_session()
