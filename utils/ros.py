@@ -6,27 +6,7 @@ import math
 # irob
 # bark
 frame_id = "base_link"
-
-# continous_topic = '/cmd_vel/nav'
-continous_type = 'geometry_msgs/Twist'
-# roslibpy.Message(
-#         {"linear": {"x": 0.0, "y": 0.0, "z": 0.0}, # x előre max 0.4
-#          "angular": {"x": 0.0, "y": 0.0, "z":0.0}  # z irány -0.8 jobbra vége, 0.8 balra vége
-#         }
-def connect(host="10.8.8.187", port=9090, topic="/mobile_controller/set_target"):
-    """
-    Connect to ROS
-    and subsribe to the required topics
-    """
-    ros = roslibpy.Ros(host=host, port=port)
-    ros.run()
-
-    if ros.is_connected:
-        print("Connected to ROS")
-    talker = roslibpy.Topic(ros, topic, continous_type) #"geometry_msgs/PoseStamped")
-    return ros, talker
-
-
+        
 commands = {
     "forward": roslibpy.Message(
         {
@@ -56,3 +36,22 @@ commands = {
         }
     ),
 }
+def connect(host="10.8.8.187", port=9090, target = 'ros-step'):
+    """
+    Connect to ROS
+    and subsribe to the required topics
+    """
+    if target == 'ros-step':
+        topic="/mobile_controller/set_target"
+        msg_type = 'geometry_msgs/PoseStamped'
+    if target == 'ros-continous':
+        topic = '/cmd_vel/nav'
+        msg_type = 'geometry_msgs/Twist'
+        
+    ros = roslibpy.Ros(host=host, port=port)
+    ros.run()
+
+    if ros.is_connected:
+        print("Connected to ROS")
+    talker = roslibpy.Topic(ros, topic, msg_type)
+    return ros, talker, commands

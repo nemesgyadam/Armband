@@ -5,8 +5,7 @@ import numpy as np
 import argparse
 import pathlib
 import tensorflow as tf
-from tensorflow import keras
-from keras import backend as K
+
 import datetime
 from scipy import signal
 
@@ -28,7 +27,7 @@ from utils.signal import DCFilter, normalize
 from utils.augment import apply_augment
 
 from utils.ros import connect, commands
-
+from utils.control import *
 
 from config.armband import *
 
@@ -45,17 +44,16 @@ clear = lambda: os.system("cls")
 def parse_args(args):
     parser = argparse.ArgumentParser()
     parser.add_argument("model", help="model")
-    parser.add_argument("--target", help= "Device to control:(None, ros-continous, ros-step, keyboard)")
+    parser.add_argument("--target", default = '', help= "Device to control:(None, ros-continous, ros-step, keyboard)")
     return parser.parse_args(args)
 
 
-def decode(pred, target):
+def decode(pred):
     gas_pred = pred[0][0][0]
     direction_pred = pred[1][0]
-    gases = ["Stop", "Go"]
-    directions = ["Middle", "Right", "Left"]
-
-    gas = gas_pred > settings["thresholds"]["gas"]
+    
+    # én így szoktam kasztolni ;)
+    gas = 1 if gas_pred > settings["thresholds"]["gas"] else 0
 
     if direction_pred < settings["thresholds"]["left"]:
         direction = 2
@@ -63,63 +61,32 @@ def decode(pred, target):
         direction = 1
     else:
         direction = 0
-    # direction = np.argmax(direction_pred)
-
-    if target == 'keyboard':
-        if gas == 0:
-            pyautogui.keyUp("up")
-        elif gas == 1:
-            pyautogui.keyDown("up")
-        if direction == 1:
-            pyautogui.keyDown("right")
-            pyautogui.keyUp("left")
-        elif direction == 2:
-            pyautogui.keyDown("left")
-            pyautogui.keyUp("right")
-        else:
-            pyautogui.keyUp("right")
-            pyautogui.keyUp("left")
-    elif target == 'ros-continous':
-        speed = commands['forward']
-        speed = speed.replace('speed', str(gas_pred))
-        talker.publish(commands['forward'])
-        direction = commands['turn']
-        direction = direction.replace('direction', str(direction_pred))
-        talker.publish(commands['turn'])
-    elif target == 'ros-step':
-        if gas == 1:
-                talker.publish(commands['forward'])
-            
-        if direction == 1:
-            talker.publish(commands['right'])
-        elif direction == 2:
-            talker.publish(commands['left'])
-    else:
-        print("invalid target")
-        quit()
         
 
+    return gas, direction, gas_pred, direction_pred
+  
+
+def print_info(gas, direction, gas_pred, direction_pred):
+    clear()
+    gases = ["Stop", "Go"]
+    directions = ["Middle", "Right", "Left"]
     gas_text = gases[gas]
     direction_text = directions[direction]
     print("Value:")
     print(f"Gas: {gas_pred} Direction: {direction_pred}")
     print("Command:")
     print(f"Gas: {gas_text}, Direction: {direction_text}")
-
+    
 
 def run(board, model, target, signal_length=1):
-    if 'ros' in target:
-        from utils.ros import connect, commands
-        ros, talker = connect()
-    if target == 'keyboard':
-        import pyautogui
+    controller = Controller(target)
+        
     sample_rate = board.get_sampling_rate(16)
     board.start_stream(450000)
     data_window = 2  # sec
-    time.sleep(2)
+    time.sleep(3)
+    
 
-    command_buffer = np.zeros((2, 100))
-    buffer_index = 0
     times = []
     while True:
         #start = perf_counter_ns()
@@ -133,41 +100,29 @@ def run(board, model, target, signal_length=1):
         data = data[:8, -sample_rate * data_window :]
         data = normalize(data, False)
         data = np.expand_dims(data, axis=0)
-        input(data.shape)
+        
         #pre_start = perf_counter_ns()
         pred = model(data)
         #pre_end = perf_counter_ns()
 
-        clear()
-        if target != 'ros-continous':
-            decode(pred, target)
-        else:
-            gas_pred = pred[0][0][0]
-            direction_pred = pred[1][0]
-          
-            gas = gas_pred > settings["thresholds"]["gas"]
+        
+        
+        gas, direction, gas_pred, direction_pred = decode(pred)
+        print_info(gas, direction, gas_pred, direction_pred)
+        
+        if target == 'keyboard':
+            controller.keyboard_control(gas, direction)
+        elif target == 'ros-step':
+            controller.ros_step_control(gas, direction)
+        elif target == 'ros-continous':
+            controller.ros_continous_control(gas_pred, direction_pred)
+            
+      
+            
+           
 
-            if direction_pred < settings["thresholds"]["left"]:
-                direction = 2
-            elif direction_pred > settings["thresholds"]["right"]:
-                direction = 1
-            else:
-                direction = 0
-            command_buffer[0, buffer_index] = gas
-            command_buffer[1, buffer_index] = direction
-            buffer_index += 1
-            if buffer_index == 100:
-                print("calculating average")
-                gas_summ = np.sum(command_buffer[0, :])
-                unique, counts = numpy.unique(command_buffer[0, :], return_counts=True)
-                res = dict(zip(unique, counts))
-                left_summ = res[2]
-                right_summ = res[1]
-                print(f"gas: {gas_summ}, left: {left_summ}, right: {right_summ}")
-                command_buffer = np.zeros((2, 100))
-                buffer_index = 0
-        print()
-        print()
+       
+       
         #end = perf_counter_ns()
         #times.append(end - start)
         #print(f"Average time: {np.mean(times)/1e6} ms")
@@ -180,7 +135,7 @@ def main(args=None):
 
     print(f"Loading model from {model_path}")
     model = tf.keras.models.load_model(model_path)
-
+   
     board = init()
 
     # model = configure(board, model=model)
