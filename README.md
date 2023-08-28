@@ -1,4 +1,35 @@
 # Whats its all about
+This repositry contains all necessary code to the following use cases:
+    - Record EMG data with Mindrove Armmband and the corresponding hand gestures with Leap Motion
+    - Train deep learning models on the recroded data
+    - Send emulated keystrokees using the trained model
+    - Send ROS commands using the trained model
+
+# Robot Control
+ -Required tools:
+     - Mindrove Armband
+     - A computer to communicate with the Armband and run the Deep learning model
+     - A ROS robot to be controlled
+Setup steps:
+ * [Optional] Check if you can send python control commands to a robot using ros_test.py
+ * Setup the Mindrove Armband as described in the the Mindrove setup point
+ * Start the EMG_control.py (suggested model "conv_lstm2")
+   
+# MindRove setup
+
+* Apply NaCl solution to the Mindrove Armband electrodes
+* Put on Armband to subject, placement:\
+    - right hand
+    - 2/3 of lower arm 
+    - sensor look outwards
+    - lights on top
+![Armband Position](/resources/position.jpg "Text to show on mouseover").
+
+* Turn on Mindrove Armband
+* Connect to Mindrove WiFi
+
+# Data recording
+
 The purpose of the repository is to record:
 - EMG data
 - The corresponding labels
@@ -100,17 +131,7 @@ For training use the train_continous.ipynb notebook
 * Activate "env27" virtualenv in terminal A
 * Start the leap motion Visulaizer in order to validate hand postion during recording(Optional)
 
-
-* Apply NaCl solution to the Mindrove Armband electrodes
-* Put on Armband to subject, placement:\
-    - right hand
-    - 2/3 of lower arm 
-    - sensor look outwards
-    - lights on top
-![Armband Position](/resources/position.jpg "Text to show on mouseover").
-
-* Turn on Mindrove Armband
-* Connect to Mindrove WiFi
+* Follow the steps of Mindrove SETUP
 * Start LEAP_record.py to start the hand position recording\
 * Start EMG_record.py
 * Run show_csvs.py to check the data quaility (optional)
