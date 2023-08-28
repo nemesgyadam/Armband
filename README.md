@@ -1,15 +1,15 @@
 # Whats its all about
-This repositry contains all necessary code to the following use cases:
-    - Record EMG data with Mindrove Armmband and the corresponding hand gestures with Leap Motion
-    - Train deep learning models on the recroded data
-    - Send emulated keystrokees using the trained model
-    - Send ROS commands using the trained model
+This repositry contains all necessary code to the following use cases:\
+    - Record EMG data with Mindrove Armmband and the corresponding hand gestures with Leap Motion\
+    - Train deep learning models on the recroded data\
+    - Send emulated keystrokees using the trained model\
+    - Send ROS commands using the trained model\
 
 # Robot Control
- -Required tools:
-     - Mindrove Armband
-     - A computer to communicate with the Armband and run the Deep learning model
-     - A ROS robot to be controlled
+ -Required tools:\
+     - Mindrove Armband\
+     - A computer to communicate with the Armband and run the Deep learning model\
+     - A ROS robot to be controlled\
 Setup steps:
  * [Optional] Check if you can send python control commands to a robot using ros_test.py
  * Setup the Mindrove Armband as described in the the Mindrove setup point
