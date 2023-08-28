@@ -3,10 +3,10 @@ This repositry contains all necessary code to the following use cases:\
     - Record EMG data with Mindrove Armmband and the corresponding hand gestures with Leap Motion\
     - Train deep learning models on the recroded data\
     - Send emulated keystrokees using the trained model\
-    - Send ROS commands using the trained model\
+    - Send ROS commands using the trained model
 
 # Robot Control
- -Required tools:\
+Required tools:\
      - Mindrove Armband\
      - A computer to communicate with the Armband and run the Deep learning model\
      - A ROS robot to be controlled\
