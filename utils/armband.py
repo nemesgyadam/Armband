@@ -1,18 +1,20 @@
-import mindrove_brainflow
-from mindrove_brainflow.data_filter import DataFilter, FilterTypes, AggOperations
-from mindrove_brainflow.board_shim import (
+import mindrove
+from mindrove.data_filter import DataFilter, FilterTypes, AggOperations
+from mindrove.board_shim import (
     BoardShim,
-    BrainFlowInputParams,
+    MindRoveInputParams,
     BoardIds,
-    BrainFlowError
+    MindRoveError
 )
 
 
 def init():
     ####      INIT BOARD        #######
     BoardShim.enable_dev_board_logger()
-    params = BrainFlowInputParams()
-    board = BoardShim(BoardIds.MINDROVE_WIFI_BOARD, params)
+    params = MindRoveInputParams()
+    board_id = BoardIds.MINDROVE_WIFI_BOARD.value    
+    board = BoardShim(board_id, params)
+    board.prepare_session()
 
     try:
         board.stop_stream()
@@ -20,9 +22,9 @@ def init():
     except:
         ...
 
-    board.prepare_session()
-    sample_rate = board.get_sampling_rate(16)
-    n_channels = 6
+
+    sample_rate = board.get_sampling_rate(board_id)
+    n_channels = 8
 
     print("Device ready (sampling rate: {}hz)".format(sample_rate))
     return board

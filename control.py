@@ -10,13 +10,13 @@ import datetime
 from scipy import signal
 
 #from time import perf_counter_ns
-import mindrove_brainflow
-from mindrove_brainflow.data_filter import DataFilter, FilterTypes, AggOperations
-from mindrove_brainflow.board_shim import (
+import mindrove
+from mindrove.data_filter import DataFilter, FilterTypes, AggOperations
+from mindrove.board_shim import (
     BoardShim,
-    BrainFlowInputParams,
+    MindRoveInputParams,
     BoardIds,
-    BrainFlowError,
+    MindRoveError,
 )
 
 
@@ -49,8 +49,11 @@ def parse_args(args):
 
 
 def decode(pred):
+    time.sleep(0.1)
     gas_pred = pred[0][0][0]
-    direction_pred = pred[1][0]
+    direction_pred = pred[1][0][0]
+    print (pred[0][0])
+    print (pred[1][0])
     
     # én így szoktam kasztolni ;)
     gas = 1 if gas_pred > settings["thresholds"]["gas"] else 0
@@ -81,7 +84,8 @@ def print_info(gas, direction, gas_pred, direction_pred):
 def run(board, model, target, signal_length=1):
     controller = Controller(target)
         
-    sample_rate = board.get_sampling_rate(16)
+    board_id = BoardIds.MINDROVE_WIFI_BOARD.value 
+    sample_rate = board.get_sampling_rate(board_id)
     board.start_stream(450000)
     data_window = 2  # sec
     time.sleep(3)
@@ -98,13 +102,15 @@ def run(board, model, target, signal_length=1):
         data = signal.sosfilt(sos, data)
         data = DCFilter(data)
         data = data[:8, -sample_rate * data_window :]
+        #print(data.shape)
         data = normalize(data, False)
+        #print(data.shape)
         data = np.expand_dims(data, axis=0)
         
         #pre_start = perf_counter_ns()
         pred = model(data)
         #pre_end = perf_counter_ns()
-
+        print (pred)
         
         
         gas, direction, gas_pred, direction_pred = decode(pred)
