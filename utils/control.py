@@ -48,7 +48,7 @@ class Controller:
 
     def ros_continous_control(self, gas_continous, direction_continous):
         gas_continous = gas_continous.numpy()
-        direction_continous = direction_continous.numpy()[0]
+        direction_continous = direction_continous.numpy()
         gas_continous *= 0.4
         gas_continous = np.round(gas_continous, 3)
         direction_continous *= -0.8

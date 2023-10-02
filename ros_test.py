@@ -1,7 +1,7 @@
 from utils.ros import connect, commands
 import roslibpy
 
-ros, talker = connect(topic = '/cmd_vel/nav')
+ros, talker, commands = connect(target = 'ros-continous') 
 print("sending:")
 print(commands["forward"])
 import time

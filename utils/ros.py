@@ -39,7 +39,7 @@ commands = {
 def connect(host="10.8.8.187", port=9090, target = 'ros-step'):
     """
     Connect to ROS
-    and subsribe to the required topics
+    and subscribe to the required topics
     """
     if target == 'ros-step':
         topic="/mobile_controller/set_target"
